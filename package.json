@@ -1,6 +1,6 @@
 {
   "name": "@lloiser/atom-languageclient",
-  "version": "0.9.9",
+  "version": "0.10.0",
   "description": "Integrate Language Servers with Atom",
   "repository": "https://github.com/lloiser/atom-languageclient",
   "license": "MIT",
