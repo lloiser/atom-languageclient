@@ -1,3 +1,12 @@
+## v0.10.1
+
+- Support the `relatedInformation` on a [Diagnostic](https://microsoft.github.io/language-server-protocol/specification#diagnostic)
+
+## v0.10.0
+
+- Moved `determineProjectPath` from the server manager to the auto-languageclient.
+  - This allows IDE packages to use a different root path for their language servers based on the opened file.
+
 ## v0.9.9
 
 - Fixes (bugs introduced in v0.9.8)
