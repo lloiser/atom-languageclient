@@ -193,6 +193,9 @@ export default class AutoLanguageClient {
           rename: {
             dynamicRegistration: false,
           },
+          publishDiagnostics: {
+            relatedInformation: true,
+          },
 
           // We do not support these features yet.
           // Need to set to undefined to appease TypeScript weak type detection.

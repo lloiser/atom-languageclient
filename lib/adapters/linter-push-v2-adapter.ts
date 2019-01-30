@@ -3,6 +3,7 @@ import * as atom from 'atom';
 import Convert from '../convert';
 import {
   Diagnostic,
+  DiagnosticRelatedInformation,
   DiagnosticCode,
   DiagnosticSeverity,
   LanguageClientConnection,
@@ -72,7 +73,7 @@ export default class LinterPushV2Adapter {
   //
   // Returns a {V2Message} equivalent to the {Diagnostic} object supplied by the language server.
   public diagnosticToV2Message(path: string, diagnostic: Diagnostic): linter.Message {
-    return {
+    const message: linter.Message = {
       location: {
         file: path,
         position: Convert.lsRangeToAtomRange(diagnostic.range),
@@ -81,6 +82,43 @@ export default class LinterPushV2Adapter {
       linterName: diagnostic.source,
       severity: LinterPushV2Adapter.diagnosticSeverityToSeverity(diagnostic.severity || -1),
     };
+
+    if (diagnostic.relatedInformation) {
+      message.description = diagnostic.relatedInformation.map(this.diagnosticRelatedInformation, this).join('\n');
+    }
+
+    return message;
+  }
+
+  /**
+   * Creates a markdown formatted string representing the related information.
+   * @param  relatedInformation The related information
+   * @return                    The markdown formatted string
+   */
+  public diagnosticRelatedInformation(relatedInformation: DiagnosticRelatedInformation): string {
+    const link = this.markdownFileLink(
+      Convert.uriToPath(relatedInformation.location.uri),
+      Convert.positionToPoint(relatedInformation.location.range.start),
+    );
+    return `* [${relatedInformation.message}](${link})`;
+  }
+
+  /**
+   * Creates a markdown formatted link that opens the given file.
+   * It also moves the cursor to the given point.
+   * @param  filename The path to the file
+   * @param  point    A point to move the cursor to
+   * @return          The markdown link
+   */
+  public markdownFileLink(filename: string, point: atom.Point): string {
+    const params = ['filename=' + encodeURIComponent(filename)];
+    if (point.row > 0) {
+      params.push('line=' + (point.row + 1)); // +1 because the link uses 1 based numbers
+      if (point.column > 0) {
+        params.push('column=' + (point.column + 1)); // +1 because the link uses 1 based numbers
+      }
+    }
+    return 'atom://core/open/file?' + params.join('&');
   }
 
   // Public: Convert a diagnostic severity number obtained from the language server into
